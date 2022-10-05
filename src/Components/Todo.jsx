@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import ShowTodo from "./ShowTodo";
+import TodoForm from "./TodoForm";
 import "./Todo.css";
 function Todo() {
-  const [task, setTask] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3000/todos")
+    const url= new URL("http://localhost:3000/todos");
+    url.searchParams.set("_sort","createdAt")
+    url.searchParams.set("_order","desc")
+    fetch(url.toString())
       .then((res) => res.json())
       .then((todoData) => {
         setData(todoData);
@@ -15,23 +18,14 @@ function Todo() {
       });
   }, []);
 
-  const onChangeHandler = (e) => {
-    setTask(e.target.value);
-  };
-
-  const submitHandler = (e) => {
-    e.preventDefault();
-    const newData = { task, id: Date.now() };
-    setData([newData, ...data]);
-
-    setTask("");
-  };
-
   const deleteItem = (taskIdToDelete) => {
     const finalData = data.filter((curEle) => {
       return curEle.id !== taskIdToDelete;
     });
     setData(finalData);
+  };
+  const addToDo = (todo) => {
+    setData([todo, ...data]);
   };
   if (loading) {
     return (
@@ -52,23 +46,7 @@ function Todo() {
               <h4 className="text-center">Todo App </h4>
             </div>
           </div>
-          <form onSubmit={submitHandler}>
-            <div className="row justify-content-between text-white p-2">
-              <div className="form-group flex-fill mb-2 col-9">
-                <input
-                  required
-                  id="todo-input"
-                  type="text"
-                  className="form-control"
-                  value={task}
-                  onChange={onChangeHandler}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary mb-2 ml-2 col-3">
-                Add Task
-              </button>
-            </div>
-          </form>
+          <TodoForm onSuccess={addToDo} />
 
           {data.map(({ task, id }, index) => {
             return (
