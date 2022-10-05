@@ -3,17 +3,24 @@
 
 import { useState } from "react";
 
-function ShowTodo(props) {
+function ShowTodo({ task, id, onSelcet, onEdit }) {
   const [editEnable, setEditEnable] = useState(false);
+  const [inputText, setInputText] = useState("");
 
   return (
     <div className="d-flex flex-row gap-2 align-items-center justify-content-center">
-      {editEnable && <input style={{ flexGrow: 1 }}/>}
-      {!editEnable && <h6 style={{ flexGrow: 1 }}>{props.task}</h6>}
+      {editEnable && (
+        <input
+          value={inputText}
+          style={{ flexGrow: 1 }}
+          onChange={(e) => setInputText(e.target.value)}
+        />
+      )}
+      {!editEnable && <h6 style={{ flexGrow: 1 }}>{task}</h6>}
 
       <button
         onClick={() => {
-          props.onSelcet(props.id);
+          onSelcet(id);
         }}
       >
         X
@@ -22,11 +29,24 @@ function ShowTodo(props) {
         className="btn btn-light ml-4"
         onClick={() => {
           setEditEnable(!editEnable);
+          if (!editEnable) {
+            setInputText(task);
+          }
         }}
       >
         {editEnable ? "Cancel" : "Edit"}
       </button>
-
+      {editEnable && (
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            onEdit(inputText);
+            setEditEnable(false);
+          }}
+        >
+          Save
+        </button>
+      )}
     </div>
   );
 }

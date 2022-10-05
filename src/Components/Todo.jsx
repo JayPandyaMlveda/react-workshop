@@ -37,6 +37,7 @@ function Todo() {
             <div className="row justify-content-between text-white p-2">
               <div className="form-group flex-fill mb-2 col-9">
                 <input
+                  required
                   id="todo-input"
                   type="text"
                   className="form-control"
@@ -50,9 +51,18 @@ function Todo() {
             </div>
           </form>
 
-          {data.map(({ task, id }) => {
+          {data.map(({ task, id }, index) => {
             return (
-              <ShowTodo key={id} id={id} task={task} onSelcet={deleteItem} />
+              <ShowTodo
+                key={id}
+                id={id}
+                task={task}
+                onSelcet={deleteItem}
+                onEdit={(updatedText) => {
+                  data[index].task = updatedText;
+                  setData([...data]);
+                }}
+              />
             );
           })}
         </div>
