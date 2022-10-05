@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ShowTodo from "./ShowTodo";
 import "./Todo.css";
 function Todo() {
   const [task, setTask] = useState("");
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/todos")
+      .then((res) => res.json())
+      .then((todoData) => {
+        setData(todoData);
+        setLoading(false);
+      });
+  }, []);
 
   const onChangeHandler = (e) => {
     setTask(e.target.value);
@@ -23,7 +33,16 @@ function Todo() {
     });
     setData(finalData);
   };
-
+  if (loading) {
+    return (
+      <div
+        style={{ width: "100vw", height: "100vh" }}
+        className="d-flex justify-content-center align-items-center"
+      >
+        <div className="spinner-border" role="status" />
+      </div>
+    );
+  }
   return (
     <div className="container">
       <div className="row justify-content-center align-items-center main-row">
