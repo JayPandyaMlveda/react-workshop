@@ -1,21 +1,35 @@
 import React, { useEffect, useState } from "react";
 import ShowTodo from "./ShowTodo";
 import TodoForm from "./TodoForm";
+import axios from "axios";
+
 import "./Todo.css";
+import DeleteTodoButton from "./DeleteTodoButton";
 function Todo() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const url= new URL("http://localhost:3000/todos");
-    url.searchParams.set("_sort","createdAt")
-    url.searchParams.set("_order","desc")
-    fetch(url.toString())
-      .then((res) => res.json())
-      .then((todoData) => {
-        setData(todoData);
+    // const url = new URL("http://localhost:3000/todos");
+    // url.searchParams.set("_sort", "createdAt");
+    // url.searchParams.set("_order", "desc");
+    axios
+      .get("http://localhost:3000/todos", {
+        params: {
+          _sort: "createdAt",
+          _order: "desc",
+        },
+      })
+      .then((res) => {
+        setData(res.data);
         setLoading(false);
       });
+    // fetch(url.toString())
+    //   .then((res) => res.json())
+    //   .then((todoData) => {
+    //     setData(todoData);
+    //     setLoading(false);
+    //   });
   }, []);
 
   const deleteItem = (taskIdToDelete) => {
@@ -54,12 +68,13 @@ function Todo() {
                 key={id}
                 id={id}
                 task={task}
-                onSelcet={deleteItem}
                 onEdit={(updatedText) => {
                   data[index].task = updatedText;
                   setData([...data]);
                 }}
-              />
+              >
+                <DeleteTodoButton id={id} onSuccess={deleteItem}/>
+                </ShowTodo>
             );
           })}
         </div>

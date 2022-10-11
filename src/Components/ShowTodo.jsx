@@ -3,7 +3,8 @@
 
 import { useState } from "react";
 
-function ShowTodo({ task, id, onSelcet, onEdit }) {
+
+function ShowTodo({ task, id, children, onEdit }) {
   const [editEnable, setEditEnable] = useState(false);
   const [inputText, setInputText] = useState("");
 
@@ -18,13 +19,7 @@ function ShowTodo({ task, id, onSelcet, onEdit }) {
       )}
       {!editEnable && <h6 style={{ flexGrow: 1 }}>{task}</h6>}
 
-      <button
-        onClick={() => {
-          onSelcet(id);
-        }}
-      >
-        X
-      </button>
+      {children}
       <button
         className="btn btn-light ml-4"
         onClick={() => {
