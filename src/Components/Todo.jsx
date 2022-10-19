@@ -1,56 +1,28 @@
-import React, { useEffect, useState } from "react";
 import ShowTodo from "./ShowTodo";
 import TodoForm from "./TodoForm";
-import axios from "axios";
-
 import "./Todo.css";
 import DeleteTodoButton from "./DeleteTodoButton";
-function Todo() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getTodos } from "../apiCalls";
 
-  useEffect(() => {
-    // const url = new URL("http://localhost:3000/todos");
-    // url.searchParams.set("_sort", "createdAt");
-    // url.searchParams.set("_order", "desc");
-    axios
-      .get("http://localhost:3000/todos", {
-        params: {
-          _sort: "createdAt",
-          _order: "desc",
-        },
-      })
-      .then((res) => {
-        setData(res.data);
-        setLoading(false);
-      });
-    // fetch(url.toString())
-    //   .then((res) => res.json())
-    //   .then((todoData) => {
-    //     setData(todoData);
-    //     setLoading(false);
-    //   });
-  }, []);
+function Todo() {
+  const queryClient = useQueryClient();
+
+  const { data } = useQuery(["todos"], getTodos, {
+    suspense: true,
+    useErrorBoundary: true,
+  });
 
   const deleteItem = (taskIdToDelete) => {
     const finalData = data.filter((curEle) => {
       return curEle.id !== taskIdToDelete;
     });
-    setData(finalData);
+    queryClient.setQueryData(["todos"], finalData);
   };
   const addToDo = (todo) => {
-    setData([todo, ...data]);
+    queryClient.setQueryData(["todos"], [todo, ...data]);
   };
-  if (loading) {
-    return (
-      <div
-        style={{ width: "100vw", height: "100vh" }}
-        className="d-flex justify-content-center align-items-center"
-      >
-        <div className="spinner-border" role="status" />
-      </div>
-    );
-  }
+
   return (
     <div className="container">
       <div className="row justify-content-center align-items-center main-row">
@@ -69,12 +41,22 @@ function Todo() {
                 id={id}
                 task={task}
                 onEdit={(updatedText) => {
-                  data[index].task = updatedText;
-                  setData([...data]);
+                  queryClient.setQueryData(
+                    ["todos"],
+                    data.map((todo, i) => {
+                      if (i === index) {
+                        return {
+                          ...todo,
+                          task: updatedText,
+                        };
+                      }
+                      return todo;
+                    })
+                  );
                 }}
               >
-                <DeleteTodoButton id={id} onSuccess={deleteItem}/>
-                </ShowTodo>
+                <DeleteTodoButton id={id} onSuccess={deleteItem} />
+              </ShowTodo>
             );
           })}
         </div>
